@@ -33,21 +33,19 @@ struct student
 	int brBodova;
 }baza[BAZA_SIZE];
 
-// (*baza).ime="Marko"
-
 int pos = 0;
 int endRead = 0;
 
 int baza_open(struct inode *pinode, struct file *pfile);
 int baza_close(struct inode *pinode, struct file *pfile);
-//ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t *offset);
+ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t *offset);
 ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length, loff_t *offset);
 
 struct file_operations my_fops =
 {
 	.owner = THIS_MODULE,
 	.open = baza_open,
-//	.read = baza_read,
+	.read = baza_read,
 	.write = baza_write,
 	.release = baza_close,
 };
@@ -64,10 +62,10 @@ int baza_close(struct inode *pinode, struct file *pfile)
 		printk(KERN_INFO "Succesfully closed baza\n");
 		return 0;
 }
-/*
+
 ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t *offset) 
 {
-	int ret;
+	int ret,i;
 	char buff[BUFF_SIZE];
 	long int len = 0;
 	if (endRead){
@@ -75,7 +73,7 @@ ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 		return 0;
 	}
 
-	if(down_interruptible(&sem))
+/*	if(down_interruptible(&sem))
 		return -ERESTARTSYS;
 	while(pos == 0)
 	{
@@ -86,28 +84,35 @@ ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 			return -ERESTARTSYS;
 	}
 
-
+*/
 	if(pos > 0)
 	{
-		pos --;
-		len = scnprintf(buff, BUFF_SIZE, "%d ", baza[pos]);
-		ret = copy_to_user(buffer, buff, len);
-		if(ret)
-			return -EFAULT;
+		i=pos;
+		for (i=i-1; i>=0; i--)
+		{		
+			pos --;
+			len = scnprintf(buff, BUFF_SIZE, "%s %s %s - %d ", baza[pos].brIndexa, baza[pos].ime, baza[pos].prezime, baza[pos].brBodova);
+			ret = copy_to_user(buffer, buff, len);
+			printk(KERN_INFO "Cao Davide\n");
+	//		printk(KERN_INFO "i= %d \n",&i);
+			printk(KERN_INFO "imam ime: %s\n",baza[pos].ime);
+			if(ret)
+				return -EFAULT;
+		}
 		printk(KERN_INFO "Succesfully read\n");
 		endRead = 1;
 	}
 	else
 	{
-			printk(KERN_WARNING "Lifo is empty\n"); 
+			printk(KERN_WARNING "Baza je prazna\n"); 
 	}
 
-	up(&sem);
-	wake_up_interruptible(&writeQ);
+//	up(&sem);
+//	wake_up_interruptible(&writeQ);
 
 	return len;
 }
-*/
+
 ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length, loff_t *offset) 
 {
 	char buff[BUFF_SIZE];
@@ -116,7 +121,7 @@ ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length,
 	char tmp_brIndexa[100];
 	int tmp_brBodova;
 	char rec[20];
-	int br=0;
+	int br;
 	int i=0;
 
 
@@ -151,24 +156,27 @@ ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length,
 				printk(KERN_INFO "prezime %s ", tmp_prezime); 
 				printk(KERN_INFO "broj indexa %s ", tmp_brIndexa); 
 				
-				
+				br=0;	
 				for (i=0; i<BAZA_SIZE; i++)
 				{
 					if(baza[i].brIndexa==tmp_brIndexa && baza[i].ime==tmp_ime && baza[i].prezime==tmp_prezime)
 					{
-						baza[i].ime = '\0';
-						baza[i].prezime = '\0';
-						baza[i].brIndexa = '\0';
-						baza[i].brBodova = 0;
-						pos=pos-1;
 						br++;
-				    		printk(KERN_INFO "Uspesno izbrisan zeljeni student\n");
+						break;
 					}
 				}
 				if(br==0)
 					printk(KERN_WARNING "Nema takvog studenta u bazi\n");
 				else	
-					printk(KERN_INFO "Uspesno izbrisan zeljeni student\n");
+
+				{
+					baza[i].ime = '\0';
+					baza[i].prezime = '\0';
+					baza[i].brIndexa = '\0';
+					baza[i].brBodova = 0;
+					pos=pos-1;
+			    		printk(KERN_INFO "Uspesno izbrisan zeljeni student\n");
+				}
 			}
 			else
 			{
@@ -186,17 +194,31 @@ ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length,
 		{
 			ret = sscanf(buff,"%100[^,],%100[^,],%100[^=]=%d", tmp_ime, tmp_prezime, tmp_brIndexa, &tmp_brBodova);
 			if(ret==4)//four parameters parsed in sscanf
-			{
-				printk(KERN_INFO "UPIS:"); 
-				printk(KERN_INFO "ime: %s ", tmp_ime); 
-				printk(KERN_INFO "prezime: %s ", tmp_prezime); 
-				printk(KERN_INFO "broj indexa: %s ", tmp_brIndexa); 
-				printk(KERN_INFO "broj bodova: %d ", tmp_brBodova); 
-				baza[pos].ime = tmp_ime; 
-				baza[pos].prezime = tmp_prezime; 
-				baza[pos].brIndexa = tmp_brIndexa; 
-				baza[pos].brBodova = tmp_brBodova; 
-				pos=pos+1;
+			{	
+				br=0;
+				for (i=0; i<BAZA_SIZE; i++)
+				{
+					if(baza[i].brIndexa==tmp_brIndexa && baza[i].ime==tmp_ime && baza[i].prezime==tmp_prezime)
+					{
+				    		printk(KERN_INFO "Takav student vec postoji u bazi\n");
+						br++;
+						break;
+					}
+				}
+				if(br==0)
+				{	
+					printk(KERN_INFO "UPIS:"); 
+					baza[pos].ime = tmp_ime; 
+					baza[pos].prezime = tmp_prezime; 
+					baza[pos].brIndexa = tmp_brIndexa; 
+					baza[pos].brBodova = tmp_brBodova; 
+					printk(KERN_INFO "ime: %s ", baza[pos].ime); 
+					printk(KERN_INFO "prezime: %s ", baza[pos].prezime); 
+					printk(KERN_INFO "broj indexa: %s ", baza[pos].brIndexa); 
+					printk(KERN_INFO "broj bodova: %d ", baza[pos].brBodova); 
+					printk(KERN_INFO "Pozicija na koju se upisuje: %d ", pos); 
+					pos=pos+1;
+				}
 			}
 			else
 			{

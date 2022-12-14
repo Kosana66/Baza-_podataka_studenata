@@ -94,7 +94,6 @@ ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 			len = scnprintf(buff, BUFF_SIZE, "%s %s %s - %d ", baza[pos].brIndexa, baza[pos].ime, baza[pos].prezime, baza[pos].brBodova);
 			ret = copy_to_user(buffer, buff, len);
 			printk(KERN_INFO "Cao Davide\n");
-	//		printk(KERN_INFO "i= %d \n",&i);
 			printk(KERN_INFO "imam ime: %s\n",baza[pos].ime);
 			if(ret)
 				return -EFAULT;
@@ -162,21 +161,17 @@ ssize_t baza_write(struct file *pfile, const char __user *buffer, size_t length,
 					if(baza[i].brIndexa==tmp_brIndexa && baza[i].ime==tmp_ime && baza[i].prezime==tmp_prezime)
 					{
 						br++;
+						baza[i].ime = '\0';
+						baza[i].prezime = '\0';
+						baza[i].brIndexa = '\0';
+						baza[i].brBodova = 0;
+						pos=pos-1;
+				    		printk(KERN_INFO "Uspesno izbrisan zeljeni student\n");
 						break;
 					}
 				}
 				if(br==0)
 					printk(KERN_WARNING "Nema takvog studenta u bazi\n");
-				else	
-
-				{
-					baza[i].ime = '\0';
-					baza[i].prezime = '\0';
-					baza[i].brIndexa = '\0';
-					baza[i].brBodova = 0;
-					pos=pos-1;
-			    		printk(KERN_INFO "Uspesno izbrisan zeljeni student\n");
-				}
 			}
 			else
 			{

@@ -64,9 +64,15 @@ int baza_close(struct inode *pinode, struct file *pfile)
 
 ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t *offset) 
 {
-	int ret,i;
+	int ret,i,j;
 	char buff[BUFF_SIZE];
 	long int len = 0;
+	
+	char tmp_ime[100];
+	char tmp_prezime[100];
+	char tmp_brIndexa[100];
+	int tmp_brBodova;
+
 	if (endRead){
 		endRead = 0;
 		counter=0;
@@ -75,7 +81,32 @@ ssize_t baza_read(struct file *pfile, char __user *buffer, size_t length, loff_t
 
 	if(pos > 0)
 	{
-		
+		for(i=0; i<pos-1; i++)
+		{
+			for(j=i+1; j<pos; j++)
+			{
+				if(brBodova[j]<brBodova[i])
+				{							
+					
+					strcpy(tmp_ime,ime[i]);
+					strcpy(tmp_prezime,prezime[i]);		
+					strcpy(tmp_brIndexa,brIndexa[i]);
+					tmp_brBodova=brBodova[i];
+					
+					
+					strcpy(ime[i],ime[j]);
+					strcpy(prezime[i],prezime[j]);		
+					strcpy(brIndexa[i],brIndexa[j]);
+					brBodova[i]=brBodova[j];
+					
+					strcpy(ime[j],tmp_ime);
+					strcpy(prezime[j],tmp_prezime);		
+					strcpy(brIndexa[j],tmp_brIndexa);
+					brBodova[j]=tmp_brBodova;
+				}
+			}
+		}
+
 		if(counter<pos)	
 		{	
 			len = scnprintf(buff, BUFF_SIZE, "%s %s %s - %d\n", brIndexa[counter], ime[counter], prezime[counter], brBodova[counter]);

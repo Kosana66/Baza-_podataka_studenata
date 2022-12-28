@@ -7,13 +7,9 @@
 #define BAZA_SIZE 10
 #define MAX_SIZE 20
 
-FILE *fp;
-size_t num_of_bytes = 6;
 
-char ime[BAZA_SIZE][MAX_SIZE];
-char prezime[BAZA_SIZE][MAX_SIZE];
-char brIndexa[BAZA_SIZE][MAX_SIZE];
-int brBodova[BAZA_SIZE];
+FILE *fp;
+
 
 char tmp_ime[MAX_SIZE];
 char tmp_prezime[MAX_SIZE];
@@ -22,7 +18,8 @@ int tmp_brBodova;
 
 int main ()
 {
-	int pos=0;
+	char *str;
+	size_t num_of_bytes=700;
 	bool flag=true;
 	while(flag)
 	{	
@@ -45,13 +42,13 @@ int main ()
 			case 1: 
 
 				printf("Unesite ime: ");
-				scanf("%s",ime[pos]);
+				scanf("%s",tmp_ime);
 				printf("\nUnesite prezime: ");
-				scanf("%s",prezime[pos]);
+				scanf("%s",tmp_prezime);
 				printf("\nUnesite broj indeksa: ");
-				scanf("%s",brIndexa[pos]);
+				scanf("%s",tmp_brIndexa);
 				printf("\nUnesite broj bodova: ");
-				scanf("%d",&brBodova[pos]);
+				scanf("%d",&tmp_brBodova);
 				printf("\n");
 		
 				
@@ -62,8 +59,7 @@ int main ()
 					return -1;
 				}
 		
-				fprintf(fp,"%s,%s,%s=%d\n", ime[pos], prezime[pos], brIndexa[pos], brBodova[pos]);
-				pos++;
+				fprintf(fp,"%s,%s,%s=%d\n", tmp_ime, tmp_prezime, tmp_brIndexa, tmp_brBodova);
 
 				if(fclose(fp))
 				{
@@ -76,6 +72,7 @@ int main ()
 				
 			case 2: 
 					
+			
 				printf("Unesite ime: ");
 				scanf("%s",tmp_ime);
 				printf("\nUnesite prezime: ");
@@ -83,36 +80,56 @@ int main ()
 				printf("\nUnesite broj indeksa: ");
 				scanf("%s",tmp_brIndexa);
 				printf("\nUnesite novi broj bodova: ");
-				scanf("%d", &tmp_brBodova);
+				scanf("%d",&tmp_brBodova);
 				printf("\n");
 		
 				
-				fp = fopen ("/dev/baza", "a+");
+				fp = fopen ("/dev/baza", "w");
 				if(fp==NULL)
 				{
 					puts("Problem pri otvaranju /dev/baza \n");
 					return -1;
 				}
-					
-				for(int i=0; i<BAZA_SIZE; i++)
-				{
-					while(fscanf(fp,"%s %s %s - %d\n", brIndexa[i], ime[i], prezime[i], &brBodova[i]) != EOF)
-					{
-						if(strcmp(ime[i],tmp_ime)==0 && strcmp(prezime[i],tmp_prezime)==0 && strcmp(brIndexa[i],tmp_brIndexa)==0 )
-						{
-							brBodova[i]=tmp_brBodova;
-							fprintf(fp,"%s,%s,%s=%d\n", ime[i], prezime[i], brIndexa[i], brBodova[i]);
-							printf("Uspesna izmena! \n");
-						}
-					}
-				}
+		
+				fprintf(fp,"%s,%s,%s=%d\n", tmp_ime, tmp_prezime, tmp_brIndexa, tmp_brBodova);
 
 				if(fclose(fp))
 				{
 					puts("Problem pri zatvaranju /dev/baza\n");
 					return -1;
 				}
+				printf("\nUspesna izmena!\n");
 				
+			break;
+
+			case 3:
+
+				
+				printf("Unesite ime: ");
+				scanf("%s",tmp_ime);
+				printf("\nUnesite prezime: ");
+				scanf("%s",tmp_prezime);
+				printf("\nUnesite broj indeksa: ");
+				scanf("%s",tmp_brIndexa);
+				printf("\n");
+		
+				
+				fp = fopen ("/dev/baza", "w");
+				if(fp==NULL)
+				{
+					puts("Problem pri otvaranju /dev/baza \n");
+					return -1;
+				}
+		
+				fprintf(fp,"izbrisi=%s,%s,%s\n", tmp_ime, tmp_prezime, tmp_brIndexa);
+
+				if(fclose(fp))
+				{
+					puts("Problem pri zatvaranju /dev/baza\n");
+					return -1;
+				}
+				printf("\nUspesno brisanje!\n");
+
 			break;
 
 			case 4: 
@@ -123,12 +140,11 @@ int main ()
 					puts("Problem pri otvaranju /dev/baza \n");
 					return -1;
 				}
-				for(int i=0; i<BAZA_SIZE; i++)
-				{
-					while(fscanf(fp,"%s %s %s - %d\n", brIndexa[i], ime[i], prezime[i], &brBodova[i]) != EOF)
-						printf("%s %s %s - %d\n", brIndexa[i], ime[i], prezime[i], brBodova[i]);
-				}
-
+				
+				str = (char *)malloc(num_of_bytes+1);
+				getline(&str,&num_of_bytes,fp);
+				
+				printf("%s %s %s - %d\n", brIndexa[i], ime[i], prezime[i], brBodova[i]);
 				if(fclose(fp))
 				{
 					puts("Problem pri zatvaranju /dev/baza\n");

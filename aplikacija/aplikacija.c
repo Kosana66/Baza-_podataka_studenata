@@ -18,8 +18,6 @@ int tmp_brBodova;
 
 int main ()
 {
-	char *str;
-	size_t num_of_bytes=700;
 	bool flag=true;
 	while(flag)
 	{	
@@ -32,6 +30,7 @@ int main ()
 			printf("3. Brisanje studenta \n");
 			printf("4. Citanje liste \n");
 			printf("5. Izlaz \n ");	
+			printf(" Izabrali ste opciju: ");	
 			scanf("%d",&opcija);
 			if(opcija<0 || opcija>5)
 				printf("Ne postoji opcija pod tim brojem! \n");
@@ -43,11 +42,11 @@ int main ()
 
 				printf("Unesite ime: ");
 				scanf("%s",tmp_ime);
-				printf("\nUnesite prezime: ");
+				printf("Unesite prezime: ");
 				scanf("%s",tmp_prezime);
-				printf("\nUnesite broj indeksa: ");
+				printf("Unesite broj indeksa: ");
 				scanf("%s",tmp_brIndexa);
-				printf("\nUnesite broj bodova: ");
+				printf("Unesite broj bodova: ");
 				scanf("%d",&tmp_brBodova);
 				printf("\n");
 		
@@ -75,11 +74,11 @@ int main ()
 			
 				printf("Unesite ime: ");
 				scanf("%s",tmp_ime);
-				printf("\nUnesite prezime: ");
+				printf("Unesite prezime: ");
 				scanf("%s",tmp_prezime);
-				printf("\nUnesite broj indeksa: ");
+				printf("Unesite broj indeksa: ");
 				scanf("%s",tmp_brIndexa);
-				printf("\nUnesite novi broj bodova: ");
+				printf("Unesite novi broj bodova: ");
 				scanf("%d",&tmp_brBodova);
 				printf("\n");
 		
@@ -107,9 +106,9 @@ int main ()
 				
 				printf("Unesite ime: ");
 				scanf("%s",tmp_ime);
-				printf("\nUnesite prezime: ");
+				printf("Unesite prezime: ");
 				scanf("%s",tmp_prezime);
-				printf("\nUnesite broj indeksa: ");
+				printf("Unesite broj indeksa: ");
 				scanf("%s",tmp_brIndexa);
 				printf("\n");
 		
@@ -141,16 +140,15 @@ int main ()
 					return -1;
 				}
 				
-				str = (char *)malloc(num_of_bytes+1);
-				getline(&str,&num_of_bytes,fp);
-				
-				printf("%s %s %s - %d\n", brIndexa[i], ime[i], prezime[i], brBodova[i]);
+				while(fscanf(fp, "%s %s %s - %d\n", tmp_brIndexa, tmp_ime, tmp_prezime, &tmp_brBodova) != EOF)
+					printf("%s %s %s - %d\n", tmp_brIndexa, tmp_ime, tmp_prezime, tmp_brBodova);
+
 				if(fclose(fp))
 				{
 					puts("Problem pri zatvaranju /dev/baza\n");
 					return -1;
 				}
-				printf("\nUspesno citanje!\n");
+				printf("\n\nUspesno citanje!\n");
 
 			break;	
 			
